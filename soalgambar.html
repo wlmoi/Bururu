@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Belajar</title>
+    <style>
+      body {
+        background-color: brown;
+        width: 100%;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .app {
+        justify-content: center;
+        background-color: white;
+        width: 50%;
+        padding: 30px;
+        display: block;
+        margin: 10%;
+        border-radius: 10px;
+        padding: 30px;
+      }
+      .app h1 {
+        text-align: center;
+        padding-bottom: 10px;
+        border-bottom: 1px solid black;
+        margin: 0;
+      }
+      .btn {
+        border: 1px solid black;
+        border-radius: 5px;
+        width: 100%;
+        text-align: left;
+        margin: 10px 0;
+        padding: 10px;
+      }
+      .btn:hover {
+        background-color: black;
+        color: white;
+      }
+      .chosen {
+        background-color: green;
+        color: white;
+      }
+      #next-btn,
+      #prev-btn {
+        margin-top: 10px;
+        padding: 5px;
+        margin-left: 10px;
+      }
+      #next-btn {
+        margin-left: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <h1>Tes</h1>
+      <div class="tes">
+        <h2 id="question">soal</h2>
+        <div id="answers">
+          <!-- answer buttons go here -->
+        </div>
+        <button id="prev-btn" onclick="prevQuestion()">Previous</button>
+        <button id="next-btn" onclick="nextQuestion()">Next</button>
+      </div>
+    </div>
+
+    <script>
+      const fs = require('fs');
+      const xlsx = require('xlsx');
+
+      // Baca file Excel
+      const workbook = xlsx.readFile('path/to/your/excel/file.xlsx');
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+
+      // Ambil data dari kolom-kolom yang diperlukan
+      const data = xlsx.utils.sheet_to_json(sheet, { header: 1 });
+
+      // Gunakan data dari Excel untuk pertanyaan dan jawaban
+      const questions = data.slice(1).map(row => {
+        const [_, question, ...answers] = row;
+        return {
+          question,
+          answers: answers.map((text, index) => ({ text, correct: index === 0 })),
+        };
+      });
+
+      const questionElement = document.getElementById("question");
+      const answerButtons = document.getElementById("answers");
+      const nextButton = document.getElementById("next-btn");
+      const prevButton = document.getElementById("prev-btn");
+
+      let currentQuestionIndex = 0;
+      let score = 0;
+      let chosenAnswers = [];
+
+      function startQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        chosenAnswers = new Array(questions.length).fill(null);
+        showQuestion();
+      }
+
+      function showQuestion() {
+        resetState();
+        let currentQuestion = questions[currentQuestionIndex];
+        let questionNo = currentQuestionIndex + 1;
+        questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+        currentQuestion.answers.forEach((answer, index) => {
+          const button = document.createElement("button");
+          button.innerHTML = answer.text;
+          button.classList.add("btn");
+          button.onclick = () => chooseAnswer(index);
+          if (chosenAnswers[currentQuestionIndex] === index) {
+            button.classList.add("chosen");
+          }
+          answerButtons.appendChild(button);
+        });
+
+        // Show/hide previous button based on the current question index
+        prevButton.style.display = currentQuestionIndex === 0 ? "none" : "inline-block";
+      }
+
+      function resetState() {
+        while (answerButtons.firstChild) {
+          answerButtons.removeChild(answerButtons.firstChild);
+        }
+      }
+
+      function chooseAnswer(index) {
+        chosenAnswers[currentQuestionIndex] = index;
+        showQuestion();
+      }
+
+      function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+          showQuestion();
+        } else {
+          // Quiz finished, display results or perform any other action
+          calculateScore();
+          alert("Quiz finished! Your score: " + score);
+          window.location.href = "belajar.html";
+        }
+      }
+
+      function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+          currentQuestionIndex--;
+          showQuestion();
+        }
+      }
+
+      function calculateScore() {
+        for (let i = 0; i < questions.length; i++) {
+          if (chosenAnswers[i] !== null && questions[i].answers[chosenAnswers[i]].correct) {
+            score++;
+          }
+        }
+      }
+
+      // Call the startQuiz function to initialize the quiz
+      startQuiz();
+    </script>
+  </body>
+</html>

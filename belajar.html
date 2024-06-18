@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <button type="button" onclick="window.location.href='soalmap.html'">Quiz map</button>
+    <button type="button" onclick="window.location.href='pilgan.html'">Quiz mcq</button>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+      import { getDatabase, ref, get, update, child } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAA_1_WqqRj465WwlNz0Nykn2vv7JgQE60",
+        authDomain: "garudas-bd0bf.firebaseapp.com",
+        databaseURL: "https://garudas-bd0bf-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "garudas-bd0bf",
+        storageBucket: "garudas-bd0bf.appspot.com",
+        messagingSenderId: "573493107934",
+        appId: "1:573493107934:web:4a275167309de12a87f64f",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase();
+      const loggedInUser = localStorage.getItem("loggedInUsername");
+      const CurrentQuizScore = localStorage.getItem("CurrentQuizScore");
+
+      function RetData() {
+        const dbRef = ref(db);
+        get(child(dbRef, "UserData/" + loggedInUser))
+          .then((snapshot) => {
+            if (snapshot.exists()) {
+              const score = snapshot.val().score.currentScore;
+              const updatedScore = Number(CurrentQuizScore) + Number(score);
+              console.log("success");
+
+              function updateData() {
+                update(ref(db, "UserData/" + loggedInUser), {
+                  score: { currentScore: updatedScore },
+                });
+              }
+              updateData();
+            } else {
+              console.log("failed to update");
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+
+      (async () => {
+        await RetData();
+        localStorage.setItem("CurrentQuizScore", 0);
+        console.log(loggedInUser);
+        console.log(CurrentQuizScore);
+      })();
+    </script>
+    <script>
+      function lvlnumber() {
+        // Get all elements with class "lvlbtn"
+        const lvlbtns = document.querySelectorAll(".lvlbtn");
+
+        // Loop through each element and set the text content of its span to its ID
+        lvlbtns.forEach((lvlbtn) => {
+          const id = lvlbtn.id;
+          const span = lvlbtn.querySelector("span");
+          span.textContent = "lvl " + id;
+        });
+      }
+      function locklvl() {
+        const maxlvl = localStorage.getItem("unlockedlvl");
+        const lvlbtns = document.querySelectorAll(".lvlbtn");
+
+        lvlbtns.forEach((lvlbtn) => {
+          const id = lvlbtn.id;
+          const button = lvlbtn.querySelector("button");
+
+          if (id > maxlvl) {
+            button.disabled = true;
+          }
+        });
+      }
+
+      function test() {
+        const maxlvl = localStorage.getItem("unlockedlvl");
+        console.log("ok");
+      }
+      lvlnumber();
+      locklvl();
+    </script>
+  </body>
+</html>

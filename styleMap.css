@@ -1,0 +1,15 @@
+#map-container {
+    width: 500px;
+    margin: 20px auto;
+}
+
+.province {
+    fill: #d3d3d3; /* Warna default untuk semua provinsi */
+    stroke: #fff;
+    stroke-width: 0.5;
+    cursor: pointer;
+}
+
+.province:hover {
+    fill: #a9a9a9; /* Warna saat dihover */
+}

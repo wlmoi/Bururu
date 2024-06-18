@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visi dan Misi Garudas (Garuda Cerdas)</title>
+    <style>
+      :root {
+        --primary-color: #d59b45;
+        --text-color: #333;
+        --secondary-text-color: #443628;
+        --background-color: #ede0d2;
+        --container-color: #fff;
+        --container-shadow: 0px 0px 10px 0px #000;
+      }
+      body {
+        background-color: var(--background-color);
+        font-family: "Arial", sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .container {
+        background-color: var(--container-color);
+        border-radius: 10px;
+        box-shadow: var(--container-shadow);
+        padding: 40px;
+        width: 80%;
+        max-width: 1000px;
+      }
+      h1 {
+        text-align: center;
+        color: var(--text-color);
+      }
+      p {
+        color: var(--secondary-text-color);
+        line-height: 1.6;
+      }
+      button {
+        display: block;
+        width: 200px;
+        height: 50px;
+        margin: 20px auto;
+        background-color: var(--primary-color);
+        color: var(--container-color);
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        transition: background-color 0.3s ease; /* Animasi Tombol */
+      }
+      button:hover {
+        background-color: #b8860b;
+      }
+      #visiMisi {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0; /* Animasi Teks */
+        transition: max-height 0.5s ease-out, opacity 0.5s ease-in-out;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <h1>Visi dan Misi Garudas (Garuda Cerdas)</h1>
+      <button id="toggleButton">Lihat Visi dan Misi</button>
+      <section id="visiMisi">
+        <h2>Visi:</h2>
+        <p>
+          Meningkatkan literasi digital dan memperkuat rasa kewarganegaraan masyarakat Indonesia melalui pendekatan gamifikasi.
+        </p>
+        <h2>Misi:</h2>
+        <ul>
+          <li>Membangun pemahaman yang kuat tentang budaya, sejarah, dan nilai-nilai Indonesia melalui pelajaran interaktif.</li>
+          <li>Menggunakan kuis dan latihan untuk menguji dan memperkuat pemahaman digital pengguna.</li>
+          <li>
+            Mendorong belajar melalui sistem papan peringkat dan penghargaan, memanfaatkan prinsip-prinsip Game Based Learning.
+          </li>
+          <li>Menjadikan sebagai bahan pembelajaran alternatif untuk mempelajari kewarganegaraan.</li>
+        </ul>
+      </section>
+    </main>
+
+    <script>
+      document.getElementById("toggleButton").addEventListener("click", function () {
+        var visiMisi = document.getElementById("visiMisi");
+        if (visiMisi.style.maxHeight) {
+          visiMisi.style.maxHeight = null;
+          visiMisi.style.opacity = 0;
+        } else {
+          visiMisi.style.maxHeight = visiMisi.scrollHeight + "px";
+          visiMisi.style.opacity = 1;
+        }
+      });
+      localStorage.setItem("reload?", "yes");
+    </script>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Latihan</title>
+    <style>
+      body {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: bisque;
+      }
+
+      #container {
+        width: max-content;
+        height: max-content;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 25px;
+        background: linear-gradient(to right, #a35e0e, #d97c13);
+      }
+
+      #image_container {
+        width: 90%;
+        height: 90%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50px 100px 50px 100px;
+        background-color: bisque;
+        box-shadow: 10px 5px #a35e0e;
+        overflow: hidden;
+      }
+
+      #image {
+        border: 1px solid black;
+        border-radius: 25px 50px 25px 50px;
+        margin-top: auto;
+        width: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="image_container">
+        <img id="image" src="level/BG_Latihan.svg" usemap="#image_map" alt="map" />
+        <map name="image_map">
+          <area id="1" alt="Jawa barat" title="Jawa barat" href="jabar.html" coords="128,94,256,209" shape="rect" />
+          <area id="2" alt="Jawa tengah" title="Jawa tengah" href="jateng.html" coords="441,249,575,373" shape="rect" />
+          <area id="3" alt="Jawa timur" title="Jawa timur" href="jatim.html" coords="125,405,258,533" shape="rect" />
+          <area id="4" alt="Banten" title="Banten" href="banten.html" coords="440,560,573,693" shape="rect" />
+        </map>
+      </div>
+    </div>
+  </body>
+</html>

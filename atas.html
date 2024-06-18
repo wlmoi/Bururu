@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Honk&family=Sixtyfour&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        font-family: "Honk", system-ui;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(to right, #a35e0e, #d97c13);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+
+      .score-container {
+        text-align: center;
+        margin-top: auto;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 20px;
+        overflow: hidden; /* Menyembunyikan isi yang melebihi batas frame */
+        width: fit-content; /* Lebar frame sama dengan lebar viewport dikurangi margin */
+        max-height: calc(100vh - 40px); /* Tinggi frame maksimal sama dengan tinggi viewport dikurangi margin */
+        margin-bottom: auto;
+        margin-left: 300px;
+      }
+
+      .score-label, .username-label {
+        font-size: 30px;
+        font-weight: bold;
+        color: #ffc107;
+        margin-bottom: 5px;
+      }
+
+      #scoreDisplay {
+        font-size: 36px;
+        font-weight: bold;
+        color: #ffc107;
+        margin: 0;
+      }
+
+      #usernameDisplay {
+        font-size: 36px;
+        font-weight: bold;
+        margin-right: auto;
+      }
+
+
+    </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { initializeApp as initializeDatabaseApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAA_1_WqqRj465WwlNz0Nykn2vv7JgQE60",
+        authDomain: "garudas-bd0bf.firebaseapp.com",
+        projectId: "garudas-bd0bf",
+        storageBucket: "garudas-bd0bf.appspot.com",
+        messagingSenderId: "573493107934",
+        appId: "1:573493107934:web:4a275167309de12a87f64f",
+        databaseURL: "https://garudas-bd0bf-default-rtdb.asia-southeast1.firebasedatabase.app"
+      };
+
+      // Initialize Firebase app for authentication
+      const authApp = initializeApp(firebaseConfig);
+      const auth = getAuth(authApp);
+
+      // Initialize Firebase app for database
+      const databaseApp = initializeDatabaseApp(firebaseConfig);
+      const db = getDatabase(databaseApp);
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // User is signed in
+          const email = user.email;
+          const username = email.split('@')[0];
+          document.getElementById("usernameDisplay").textContent = username;
+
+          // Fetch user's score from the database
+          const userRef = ref(db, `UserData/${username}/score/currentScore`);
+          get(userRef)
+            .then((snapshot) => {
+              if (snapshot.exists()) {
+                const score = snapshot.val();
+                document.getElementById("scoreDisplay").textContent = score;
+              } else {
+                console.log("User score not found in database");
+              }
+            })
+            .catch((error) => {
+              console.error("Error getting user score:", error);
+            });
+        } else {
+          // User is signed out. Redirect to the sign-in page.
+          window.location.href = "login.html";
+        }
+      });
+
+    </script>
+  </head>
+  <body>
+    <div class="score-container">
+      <p class="username-label">Your Name: <span id="usernameDisplay"></span></p>
+      <p class="score-label">Your Score: <span id="scoreDisplay"></span></p>
+    </div>
+    <!-- Add more HTML elements for the user profile page -->
+  </body>
+</html>
+

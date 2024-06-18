@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Honk&family=Sixtyfour&display=swap" rel="stylesheet" />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Roboto", sans-serif;
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        background-color: rgba(255, 255, 255, 0.8);
+        font-size: medium;
+        font-weight: 500;
+      }
+
+      /* Bagian Kiri (Menu) */
+      .menu-container {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.8); /* Memberikan efek transparansi */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 0px;
+        overflow: hidden;
+      }
+
+      .menu-item {
+        display: flex; /* Menjadikan elemen flex container */
+        align-items: flex-start; /* Sejajarkan elemen secara vertikal di tengah container */
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: background-color 0.3s ease-in-out;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        border: none;
+        font-family: "Gill Sans MT";
+        font-size: larger;
+        font-weight: 500;
+      }
+
+      .menu-item:hover {
+        background-color: #d97c13;
+        color: #fff;
+      }
+
+      /* Foto pada Menu */
+      .menu-image {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+      }
+
+      .action {
+        flex: 1; /* Menyesuaikan tinggi untuk memenuhi framenya */
+        display: flex;
+        flex-direction: column;
+        justify-content: left; /* Pusatkan kontennya */
+        align-items: center;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.8);
+        margin: 3px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .action h2 {
+        color: #333;
+        font-size: 2em;
+        margin-bottom: 10px;
+      }
+
+      .circular-button {
+        display: inline-block;
+        background-color: #d97c13; /* Warna latar belakang */
+        padding: 10px;
+        border-radius: 50%; /* Membuat latar belakang menjadi lingkaran */
+        text-align: center;
+        cursor: pointer;
+      }
+
+      /* Memberikan gaya ke gambar */
+      .circular-button img {
+        width: 100px;
+        border-style: outset;
+        border-color: bluegreen;
+        border-radius: 50%; /* Membuat gambar menjadi lingkaran */
+      }
+    </style>
+    <title>Kiri</title>
+    <script>
+      function changeIframeSource(url) {
+        // Mengirim pesan ke iframe
+        window.parent.postMessage({ type: "changeIframeSource", url: url }, "*");
+      }
+    </script>
+    <script type="module">
+      document.addEventListener("DOMContentLoaded", function () {
+        const musicButton = document.getElementById("music-button");
+        const audioElement = document.getElementById("fake-audio");
+
+        // Menambahkan event listener jika elemen ditemukan
+        if (musicButton) {
+          musicButton.addEventListener("click", function () {
+            // Periksa apakah audio sedang diputar atau di-pause
+            if (audioElement.paused) {
+              // Jika di-pause, putar audio
+              audioElement.play().catch((error) => {
+                // Tangani kesalahan jika ada
+                console.error("Error playing audio:", error);
+              });
+              musicButton.setAttribute("aria-label", "Pause"); // Ganti label tombol
+            } else {
+              // Jika sedang diputar, pause audio
+              audioElement.pause();
+              musicButton.setAttribute("aria-label", "Play"); // Ganti label tombol
+            }
+          });
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <audio id="fake-audio" src="BG_Music/toko_fast.mp3"></audio>
+    <!-- Bagian Kiri (Menu) -->
+    <section class="action">
+      <center>
+        <a href="#" class="circular-button" onclick="changeIframeSource('profil.html')">
+          <img src="iconElips.png" alt="Bururu" width="100px" />
+        </a>
+        <p>Profil</p>
+      </center>
+      <div class="menu-container">
+        <!-- Menggunakan JavaScript untuk mengubah target iframe -->
+        <button class="menu-item" onclick="changeIframeSource('jelajah.html')">
+          <img src="menu-icon/belajar.svg" alt="belajar Icon" /> Jelajah
+        </button>
+        <button class="menu-item" onclick="changeIframeSource('peringkat.html')">
+          <img src="menu-icon/peringkat.svg" alt="peringkat Icon" />Peringkat
+        </button>
+        <button class="menu-item" onclick="changeIframeSource('toko.html')">
+          <img src="menu-icon/toko.svg" alt="toko Icon" /> Toko
+        </button>
+        <button class="menu-item" onclick="changeIframeSource('search-profile.html')">
+          <img src="menu-icon/search.svg" alt="search Icon" />Cari Profil
+        </button>
+        <button class="menu-item" onclick="changeIframeSource('misi.html')">
+          <img src="menu-icon/about-us.svg" alt="About Us Icon" />About Us
+        </button>
+      </div>
+      <button
+        id="music-button"
+        aria-label="Mute"
+        class="sc-ffe4361a-0 fYTEvq"
+        style="
+          pointer-events: auto;
+          transform: translate(0px, 0px);
+          filter: blur(0px);
+          opacity: 1;
+          background-color: #d97c13;
+          border-radius: 5px;
+          border: none;
+        ">
+        <div class="sc-8e9ac34c-0 sc-a17f8f8-0 gTcxhK">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M20.9426 2.99991C20.9426 2.74391 20.8116 2.50491 20.5956 2.36791C20.3806 2.22991 20.1096 2.21191 19.8766 2.31991C16.5316 3.87391 13.0156 4.51891 9.43862 4.23891C9.22662 4.22391 9.02362 4.29391 8.87162 4.43591C8.71662 4.57791 8.62962 4.77791 8.62962 4.98691V15.3319C8.05362 14.9229 7.35262 14.6769 6.59262 14.6769C4.64362 14.6769 3.05762 16.2639 3.05762 18.2139C3.05762 20.1639 4.64362 21.7499 6.59262 21.7499C8.53962 21.7499 10.1226 20.1689 10.1286 18.2239C10.1286 18.2199 10.1296 18.2169 10.1296 18.2139V7.40191C10.4416 7.41591 10.7546 7.43891 11.0646 7.43891C13.9236 7.43891 16.7306 6.88091 19.4426 5.77791V13.3459C18.8656 12.9369 18.1656 12.6909 17.4056 12.6909C15.4566 12.6909 13.8706 14.2779 13.8706 16.2279C13.8706 18.1779 15.4566 19.7639 17.4056 19.7639C19.3556 19.7639 20.9426 18.1779 20.9426 16.2279V2.99991Z"
+              fill="white"></path>
+          </svg>
+        </div>
+      </button>
+    </section>
+  </body>
+</html>

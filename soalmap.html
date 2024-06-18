@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 80vh;
+      width: 100%;
+    }
+
+    #submitBtn, #nextBtn, #backBtn {
+      flex: 1;
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #questionContainer {
+      flex: 1;
+      margin-top: 5px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    #timer {
+      margin-top: 10px;
+      background-color: #000000;
+      height: 1px;
+      width: 100%;
+      border-radius: 5px;
+      transition: width 3s ease; 
+    }
+
+    #totalScore {
+      flex: 0 0 30%;
+      margin-top: 1px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      float: right; /* Menjorokkan ke kanan */
+    }
+
+    .container-wrapper {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+  </style>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <title>Peta GeoJSON Provinsi Indonesia</title>
+</head>
+<body>
+  <div id="timer"></div>
+  <div id ="container-wrapper">
+    <div id="questionContainer"></div>
+  </div>
+  <div id="map"></div>
+  
+  <div id ="container-wrapper">
+    <button id="submitBtn">Submit</button>
+    <div id="totalScore"></div>
+  </div>
+  <button id="backBtn" onclick="window.location.href='soalmap.html'">Kembali</button>
+  <button id="nextBtn" style="display: none;">Next Question</button>
+  <script>
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let initialLoad = true;
+
+    function getRandomProvince(provinces) {
+      // Mengambil provinsi secara acak dari daftar provinsi
+      const randomIndex = Math.floor(Math.random() * provinces.length);
+      return provinces[randomIndex];
+    }
+
+    function initMap() {
+      if (initialLoad) {
+        document.getElementById('questionContainer').innerHTML = 'Loading...';
+        initialLoad = false; // Set flag menjadi false setelah ditampilkan sekali
+      }
+      // Inisialisasi peta menggunakan Leaflet
+      const map = L.map('map').setView([-2.189629, 117.548974], 5);
+
+      // Buat dua lapisan GeoJSON untuk wilayah belum dipilih dan wilayah dipilih
+      const layerNonSelected = L.geoJSON(null, {
+        style: {
+          color: 'blue',
+          weight: 2,
+          fillOpacity: 0.2
+        }
+      }).addTo(map);
+
+      const layerSelected = L.geoJSON(null, {
+        style: {
+          color: 'red',
+          weight: 2,
+          fillOpacity: 0.5
+        }
+      }).addTo(map);
+
+      // Menambahkan layer peta dengan GeoJSON dari link yang diberikan
+      const geoJsonLink = 'https://raw.githubusercontent.com/TheMaggieSimpson/IndonesiaGeoJSON/main/provinsi.json';
+
+      fetch(geoJsonLink)
+        .then(response => response.json())
+        .then(geoJsonData => {
+          // Tambahkan data GeoJSON ke lapisan non-dipilih
+          layerNonSelected.addData(geoJsonData);
+
+          // Menambahkan objek untuk melacak status wilayah yang dipilih
+          const selectedStatus = {};
+
+          // Tambahkan event listener untuk menanggapi klik pada wilayah provinsi
+          layerNonSelected.eachLayer(layer => {
+            layer.on('click', function () {
+              const featureId = layer.feature.id;
+
+              if (selectedStatus[featureId]) {
+                // Jika wilayah sudah dipilih, hapus dari wilayah dipilih
+                delete selectedStatus[featureId];
+                layerSelected.eachLayer(selectedLayer => {
+                  if (selectedLayer.feature.id === featureId) {
+                    layerSelected.removeLayer(selectedLayer);
+                  }
+                });
+              } else {
+                // Jika wilayah belum dipilih, tambahkan ke wilayah dipilih
+                selectedStatus[featureId] = true;
+                const selectedFeature = layer.toGeoJSON();
+                layerSelected.addData(selectedFeature);
+              }
+            });
+          });
+
+          // Menambahkan pertanyaan tentang letak suatu provinsi
+          const provinces = geoJsonData.features.map(feature => feature.properties.NAME_1);
+          let randomProvince = getRandomProvince(provinces);
+
+          function updateQuestion() {
+            randomProvince = getRandomProvince(provinces);
+            document.getElementById('questionContainer').innerHTML = `Dimana letak provinsi ${randomProvince}?`;
+            startTimer();
+          }
+
+          document.getElementById('questionContainer').innerHTML = `Dimana letak provinsi ${randomProvince}?`;
+
+          // Menambahkan timer
+          let timeRemaining = 10;
+          const timerElement = document.getElementById('timer');
+
+          function updateTimer() {
+            timerElement.style.width = (timeRemaining / 10) * 100 + '%';
+            timeRemaining--;
+
+            if (timeRemaining < 0) {
+              clearInterval(timerInterval);
+              alert('Waktu Habis! Anda tidak mendapatkan poin.');
+              updateQuestion();
+              timeRemaining = 10;
+              initMap(); // Mulai pertanyaan baru
+            }
+          }
+          
+          function startTimer() {
+            clearInterval(timerInterval); // Hentikan timer jika masih berjalan
+            timeRemaining = 10;
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 1000);
+          }
+
+          // Menambahkan event listener untuk tombol submit
+          document.getElementById('submitBtn').addEventListener('click', function () {
+            clearInterval(timerInterval); // Hentikan timer
+            const selectedFeatures = layerSelected.toGeoJSON();
+            if (selectedFeatures.features.length > 0) {
+              const selectedProvince = selectedFeatures.features[0].properties.NAME_1;
+              const questionContainer = document.getElementById('questionContainer');
+              const questionText = questionContainer.innerHTML;
+              const correctAnswer = questionText.match(/provinsi (.+)\?/i)[1];
+              let currentScore = 1;
+
+              if (selectedProvince === correctAnswer) {
+                alert(`Benar, jawaban Anda: ${correctAnswer}`);
+                currentScore = 1; 
+              } else {
+                alert(`Salah, jawaban Anda: ${selectedProvince}. Seharusnya: ${correctAnswer}`);
+                currentScore = 0
+              }
+
+              // Tambahkan poin ke total score
+              score += currentScore;
+              localStorage.setItem("CurrentQuizScore", score);
+              document.getElementById('totalScore').innerHTML = `Total Score: ${score}`;
+              document.getElementById('nextBtn').style.display = 'block';
+
+              // Update pertanyaan untuk provinsi berikutnya
+              updateQuestion();
+              timeRemaining = 10;
+              updateTimer();
+              initMap(); // Mulai pertanyaan baru
+            } else {
+              alert('Tidak ada provinsi yang dipilih.');
+            }
+          });
+
+          document.getElementById('nextBtn').addEventListener('click', function () {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < 5) {
+              // Ganti pertanyaan dengan mereload halaman
+              window.location.href = window.location.href;
+            } else {
+              alert('Quiz Selesai! Skor Total Anda: ' + score);
+              window.location.href = "belajar.html";
+            }
+          });
+          updateQuestion();
+          startTimer();
+        })
+        .catch(error => {
+          console.error('Error loading GeoJSON:', error);
+        });
+
+      // Menggunakan leaflet-hash untuk mengatur hash dalam URL
+      L.hash(map);
+    }
+
+    // Panggil fungsi initMap saat halaman selesai dimuat
+    document.addEventListener('DOMContentLoaded', initMap);
+  </script>
+</body>
+</html>

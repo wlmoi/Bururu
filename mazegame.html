@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Latihan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Honk&family=Sixtyfour&display=swap" rel="stylesheet" />
+    <style type="text/css">
+      body {
+        margin-top: 20px;
+        background: black;
+        margin: 0;
+      }
+
+      canvas {
+        margin-top: 20px;
+        border: 2px solid #25d366;
+        border-radius: 5px;
+        display: block;
+        margin: 0px auto;
+        background: black;
+        justify-content: space-between;
+      }
+
+      p {
+        text-align: center;
+        color: #00ff00;
+        font-size: x-large;
+      }
+      span {
+        text-align: center;
+        color: black;
+        font-size: x-large;
+        display: block;
+      }
+      .qnacontainer {
+        border: 2px solid white;
+        display: flex;
+        padding: 0;
+        width: 70%;
+        margin: 0 10px;
+        display: block;
+        border-radius: 5px;
+        background: #222;
+        height: fit-content;
+      }
+      .gamecontainer {
+        display: flex;
+        margin-top: 20px;
+        padding-left: 20px;
+      }
+      #question {
+        border-bottom: 2px solid white;
+        padding: 20px 10px;
+        background-color: black;
+        color: white;
+        text-align: justify;
+        font-family: "Honk", system-ui;
+        letter-spacing: 2px;
+      }
+      #answers {
+        padding-top: 20px;
+        padding-right: 10px;
+        padding-left: 10px;
+        color: white;
+        text-align: justify;
+        background-color: black;
+        font-family: "Honk", system-ui;
+        letter-spacing: 2px;
+      }
+      h2 {
+        text-align: center;
+        display: block;
+        color: white;
+        font-family: "Sixtyfour", sans-serif;
+      }
+      /* === removing default button style ===*/
+      .button {
+        margin: 0;
+        height: auto;
+        background: transparent;
+        padding: 0;
+        border: none;
+        cursor: pointer;
+      }
+
+      /* button styling */
+      .button {
+        --border-right: 6px;
+        --text-stroke-color: rgba(255, 255, 255, 0.6);
+        --animation-color: red;
+        --fs-size: 2em;
+        letter-spacing: 3px;
+        text-decoration: none;
+        font-size: var(--fs-size);
+        font-family: "Arial";
+        position: relative;
+        text-transform: uppercase;
+        color: transparent;
+        -webkit-text-stroke: 1px var(--text-stroke-color);
+      }
+      /* this is the text, when you hover on button */
+      .hover-text {
+        position: absolute;
+        box-sizing: border-box;
+        content: attr(data-text);
+        color: var(--animation-color);
+        width: 0%;
+        inset: 0;
+        border-right: var(--border-right) solid var(--animation-color);
+        overflow: hidden;
+        transition: 0.5s;
+        -webkit-text-stroke: 1px var(--animation-color);
+      }
+      /* hover */
+      .button:hover .hover-text {
+        width: 100%;
+        filter: drop-shadow(0 0 23px var(--animation-color));
+      }
+      .footer {
+        display: flex;
+      }
+      .livescontainer {
+        width: 100%;
+        display: flex;
+        right: 0;
+      }
+      .livescontainer img {
+        width: 50px;
+      }
+      .livesbox {
+        right: 0;
+        position: fixed;
+        margin-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gamecontainer">
+      <canvas id="gameCanvas" width="360" height="640"></canvas>
+      <div class="qnacontainer">
+        <div>
+          <h2>Soal</h2>
+          <span id="question"></span>
+        </div>
+        <div>
+          <h2>Jawaban</h2>
+          <span id="answers"></span>
+        </div>
+      </div>
+    </div>
+
+    <br />
+    <p>Use Arrow Keys To Move</p>
+    <div class="footer">
+      <div class="exitbuttoncontainer">
+        <button class="button" data-text="Awesome" onclick="window.parent.location.href='index.html'">
+          <span class="actual-text">&nbsp;Exit&nbsp;</span>
+          <span aria-hidden="true" class="hover-text">&nbsp;Exit&nbsp;</span>
+        </button>
+      </div>
+      <div class="livescontainer">
+        <div class="livesbox" id="heart">
+          <img src="heart.png" id="live1" />
+          <img src="heart.png" id="live2" />
+          <img src="heart.png" id="live3" />
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      // Define key codes
+      let i = 1;
+
+      const KEY = {
+        ARROW_LEFT: 37,
+        ARROW_UP: 38,
+        ARROW_RIGHT: 39,
+        ARROW_DOWN: 40,
+        N: 78,
+        P: 80,
+        S: 83,
+      };
+
+      // Define game state variables
+      let gameState = {
+        score: 0,
+        level: 1,
+        // Add more state variables as needed
+      };
+
+      // Define map layout variables
+      let mapLayout = {
+        width: 800,
+        height: 600,
+        maze1: [
+          [0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          [1, 0, 1, 1, 1, 0, 1, 1, 0, 1],
+          [1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+          [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          [1, 1, 0, 1, 0, 1, 1, 1, 1, 1],
+          [0, 1, 0, 1, 1, 1, 0, 0, 0, 1], //4
+          [0, 0, 0, 0, 0, 1, 1, 1, 0, 1],
+          [1, 1, 1, 1, 0, 1, 0, 0, 0, 1],
+          [1, 0, 0, 1, 0, 0, 0, 1, 0, 1],
+          [1, 0, 1, 1, 1, 0, 1, 1, 0, 1],
+          [1, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+          [1, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+          [1, 1, 1, 1, 0, 1, 1, 0, 1, 1],
+          [1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+        ],
+        maze2: [
+          [0, 0, 1, 1, 0, 1, 1, 1, 1],
+          [1, 0, 0, 1, 0, 0, 0, 0, 0],
+          [1, 1, 0, 1, 0, 1, 1, 1, 0],
+          [0, 1, 0, 0, 0, 0, 0, 1, 0],
+          [0, 0, 0, 1, 1, 1, 0, 1, 0],
+          [1, 1, 0, 0, 0, 1, 0, 0, 0],
+          [1, 0, 1, 1, 0, 1, 1, 1, 0],
+          [1, 0, 1, 0, 0, 0, 0, 0, 0], //4
+          [1, 0, 0, 0, 1, 1, 1, 1, 0],
+          [1, 1, 1, 0, 1, 0, 0, 0, 0],
+          [1, 0, 0, 0, 1, 1, 1, 1, 0],
+          [1, 1, 1, 1, 0, 0, 0, 1, 0],
+          [1, 0, 0, 0, 0, 1, 0, 0, 0],
+          [1, 0, 1, 1, 0, 1, 1, 1, 1],
+          [1, 0, 0, 1, 0, 0, 0, 0, 0],
+          [1, 1, 1, 1, 1, 1, 1, 1, 0],
+        ],
+
+        maze3: [
+          [0, 1, 0, 0, 0, 1, 1, 0, 1],
+          [0, 0, 0, 1, 0, 0, 0, 0, 0],
+          [1, 0, 1, 1, 1, 0, 1, 1, 0],
+          [1, 0, 0, 0, 1, 0, 1, 0, 0],
+          [1, 0, 1, 0, 1, 0, 1, 1, 1],
+          [1, 0, 1, 1, 1, 0, 0, 0, 0],
+          [1, 0, 0, 0, 1, 1, 1, 1, 0],
+          [1, 1, 1, 0, 0, 0, 0, 1, 0], //4
+          [1, 0, 0, 0, 1, 1, 1, 1, 0],
+          [1, 0, 1, 1, 1, 0, 0, 1, 0],
+          [1, 0, 0, 0, 1, 1, 0, 1, 0],
+          [1, 1, 0, 0, 0, 1, 0, 1, 0],
+          [0, 0, 0, 1, 0, 0, 0, 0, 0],
+          [1, 0, 1, 1, 0, 1, 1, 1, 1],
+          [1, 0, 0, 1, 0, 0, 0, 0, 0],
+          [1, 1, 0, 0, 0, 1, 1, 1, 0],
+        ],
+      };
+
+      // Define user variables
+      let user = {
+        name: "Player 1",
+        position: { x: 20, y: 20 },
+        lives: 2,
+        // Additional user attributes
+      };
+
+      // Initialize the game
+      let canvas;
+      let ctx;
+
+      function init() {
+        canvas = document.getElementById("gameCanvas");
+        ctx = canvas.getContext("2d");
+        draw();
+      }
+
+      // Handle user input
+      function handleInput(event) {
+        const key = event.keyCode;
+        let newX = user.position.x;
+        let newY = user.position.y;
+
+        if (0 === 0) {
+          if (key === KEY.ARROW_LEFT) {
+            // Left arrow
+            newX -= 40;
+          } else if (key === KEY.ARROW_UP) {
+            // Up arrow
+            newY -= 40;
+          } else if (key === KEY.ARROW_RIGHT) {
+            // Right arrow
+            newX += 40;
+          } else if (key === KEY.ARROW_DOWN) {
+            // Down arrow
+            newY += 40;
+          }
+
+          // Check if the new position is valid (not a wall)
+          if (!isWall(newX, newY)) {
+            user.position.x = newX;
+            user.position.y = newY;
+          }
+          if (user.position.x <= 0) {
+            user.position.x = 20;
+          }
+          if (user.position.x >= 360) {
+            user.position.x = 340;
+          }
+
+          // Check if player is in answer point
+          if (i === 1) {
+            if (newX >= 80 && newX <= 120 && newY >= 400 && newY <= 440) {
+              gameover();
+            } else if (newX >= 280 && newX <= 320 && newY >= 120 && newY <= 160) {
+              gameover();
+            } else if (newX >= 240 && newX <= 280 && newY >= 280 && newY <= 320) {
+              nextlvl();
+            }
+          } else if (i === 2) {
+            if (newX >= 80 && newX <= 120 && newY >= 400 + 40 * 4 && newY <= 440 + 40 * 4) {
+              gameover();
+            } else if (newX >= 280 + 40 && newX <= 320 + 40 && newY >= 120 - 40 && newY <= 120) {
+              gameover();
+            } else if (newX >= 240 + 2 * 40 && newX <= 280 + 2 * 40 && newY >= 280 + 8 * 40 && newY <= 320 + 8 * 40) {
+              nextlvl();
+            }
+          } else if (i === 3) {
+            if (newX >= 80 && newX <= 120 && newY >= 400 && newY <= 440) {
+              gameover();
+            } else if (newX >= 280 && newX <= 320 && newY >= 120 && newY <= 160) {
+              gameover();
+            } else if (newX >= 240 && newX <= 280 && newY >= 280 && newY <= 320) {
+              nextlvl();
+            }
+          }
+        }
+
+        draw();
+      }
+
+      // Function to check if a position is a wall
+      function isWall(x, y) {
+        let row = Math.floor(y / 40);
+        let col = Math.floor(x / 40);
+        const currentMaze = "maze" + i;
+        return mapLayout[currentMaze][row][col] === 1;
+      }
+
+      // Update game state
+      function update() {
+        // Perform game state updates here
+      }
+
+      // Draw game elements
+      function draw() {
+        // Clear the canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the currentmaze
+        const currentmaze = "maze" + i;
+        for (let row = 0; row < mapLayout[currentmaze].length; row++) {
+          for (let col = 0; col < mapLayout[currentmaze][row].length; col++) {
+            if (mapLayout[currentmaze][row][col] === 1) {
+              ctx.fillStyle = "blue";
+              ctx.fillRect(col * 40, row * 40, 40, 40);
+            }
+          }
+        }
+
+        // Draw the player
+        ctx.fillStyle = "#25D366";
+        ctx.beginPath();
+        ctx.arc(user.position.x, user.position.y, 10, 0, Math.PI * 2);
+        ctx.fill();
+
+        //Draw answer pointfdraw
+        if (i === 1) {
+          ctx.fillStyle = "green";
+          ctx.fillRect(240, 280, 40, 40);
+          ctx.fillStyle = "red";
+          ctx.fillRect(280, 120, 40, 40);
+          ctx.fillStyle = "yellow";
+          ctx.fillRect(80, 400, 40, 40);
+        } else if (i === 2) {
+          ctx.fillStyle = "yellow";
+          ctx.fillRect(240 + 2 * 40, 280 + 8 * 40, 40, 40);
+          ctx.fillStyle = "red";
+          ctx.fillRect(280 + 40, 120 - 40, 40, 40);
+          ctx.fillStyle = "green";
+          ctx.fillRect(80, 400 + 40 * 4, 40, 40);
+        } else if (i === 3) {
+          ctx.fillStyle = "red";
+          ctx.fillRect(240, 280, 40, 40);
+          ctx.fillStyle = "green";
+          ctx.fillRect(280, 120, 40, 40);
+          ctx.fillStyle = "yellow";
+          ctx.fillRect(80, 400, 40, 40);
+        }
+      }
+
+      function askquestion() {
+        let question = document.getElementById("question");
+        let answers = document.getElementById("answers");
+        if (i === 1) {
+          question.innerText =
+            "Anda menerima pesan di WhatsApp dari nomor yang tidak dikenal mengatakan bahwa ada paket dari J&T Express atas nama teman lamamu. Anda perhatikan bahwa ternyata ada diberikan unduhan berjudul 'Foto Paket.apk'. Apakah yang anda akan lakukan?";
+          answers.innerText =
+            "Merah: Buka, karena ini hanyalah paket biasa dari kurir.\n\nHijau: Saya akan langsung report dan block. \n\nKuning: Share ke kawan anda untuk mencari tau kebenarnya bersama. ";
+        } else if (i === 2) {
+          questions.innerText =
+            "Anda menerima pesan di WhatsApp dari nomor yang tidak dikenal yang mengaku sebagai perwakilan bank terkemuka. Mereka menginformasikan bahwa akun Anda perlu diverifikasi ulang dan meminta Anda untuk mengklik tautan yang disediakan dalam pesan. Apa kejanggalan dari pesan di atas?";
+          answers.innerText =
+            "Merah : Tidak ada kejanggalan karena pesan tersebut mungkin merupakan langkah keamanan standar dari bank terkemuka untuk memastikan keamanan akun Anda.\n\nHijau : Tidak ada kejanggalan karena memverifikasi ulang akun secara berkala adalah praktek yang umum dilakukan oleh bank untuk menjaga keamanan akun pengguna mereka \n\nKuning : Bank terkemuka biasanya tidak akan mengirim permintaan verifikasi melalui pesan WhatsApp dari nomor yang tidak dikenal.";
+        } else if (i === 3) {
+          questions.innerText =
+            "Anda menerima pesan di WhatsApp dari seseorang yang mengaku sebagai anggota dari tim teknis WhatsApp. Mereka mengatakan bahwa akun Anda telah terpilih untuk mendapatkan upgrade ke versi premium dan meminta Anda untuk memverifikasi nomor telepon Anda dengan mengirim ulang kode verifikasi yang mereka berikan. Apa yang akan Anda lakukan?";
+          answers.innerText =
+            "Merah : Tim teknis WhatsApp biasanya tidak akan meminta pengguna untuk mengirim ulang kode WhatsApp.\n\nHijau : Tidak ada kejanggalan karena mendapatkan upgrade ke versi premium bisa menjadi keuntungan bagi pengguna verifikasi. \n\nKuning : Tidak ada kejanggalan karena pengirim mengaku sebagai anggota tim teknis WhatsApp, yang mungkin bertanggung jawab untuk memberikan pembaruan dan peningkatan kepada pengguna.";
+        }
+        console.log(i);
+      }
+
+      function nextlvl() {
+        alert("good job");
+        i++;
+        console.log(i);
+        askquestion();
+        if (i === 4) {
+          alert("Congratulations you won 5 gems");
+          window.location.href = "index.html";
+          localStorage.setItem("addgems", 5);
+          localStorage.setItem("reload?", "yes");
+        }
+      }
+
+      function gameover() {
+        if (user.lives > 0) {
+          if (i == 1) {
+            console.log(user.lives);
+            alert("wrong answer\nlife-1");
+            user.lives--;
+            user.position.x = 20;
+            user.position.y = 20;
+            let heart = document.getElementById("heart");
+            if (user.lives === 1) {
+              live1.style.display = "none";
+            } else if (user.lives === 0) {
+              live2.style.display = "none";
+              alert("last life");
+            }
+          } else if (i == 2) {
+            console.log(user.lives);
+            alert("wrong answer\nlife-1");
+            user.lives--;
+            user.position.x = 240 + 20;
+            user.position.y = 280 + 20;
+            let heart = document.getElementById("heart");
+            if (user.lives === 1) {
+              live1.style.display = "none";
+            } else if (user.lives === 0) {
+              live2.style.display = "none";
+              alert("last life");
+            }
+          } else if (i == 3) {
+            console.log(user.lives);
+            alert("wrong answer\nlife-1");
+            user.lives--;
+            user.position.x = 240 + 2 * 40 + 20;
+            user.position.y = 280 + 8 * 40 + 20;
+            let heart = document.getElementById("heart");
+            if (user.lives === 1) {
+              live1.style.display = "none";
+            } else if (user.lives === 0) {
+              live2.style.display = "none";
+              alert("last life");
+            }
+          }
+        } else if (user.lives === 0) {
+          alert("you lost\ngame over");
+          window.location.href = "index.html";
+        }
+      }
+
+      // Main game loop
+      function gameLoop() {
+        if (!gameState.isGameOver) {
+          update();
+          draw();
+          requestAnimationFrame(gameLoop);
+        }
+      }
+
+      // Start the game
+      init();
+      gameLoop();
+      askquestion();
+
+      // Event listener for keyboard input
+      document.addEventListener("keydown", handleInput);
+    </script>
+  </body>
+</html>

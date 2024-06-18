@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Garudas</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous" />
+    <style>
+      /* Style untuk halaman Login */
+      body {
+        background-color: #f8f9fa;
+      }
+
+      #MainForm {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        position: relative; /* Tambahkan ini */
+        z-index: 2; /* Tambahkan ini */
+      }
+
+      canvas {
+        position: absolute; /* Tambahkan ini */
+        top: 0; /* Tambahkan ini */
+        left: 0; /* Tambahkan ini */
+        z-index: 1; /* Tambahkan ini */
+      }
+
+      h2 {
+        color: #d97c13;
+        display: flex;
+        align-items: center;
+      }
+
+      h2 img {
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+        border-radius: 50%;
+      }
+
+      .btn-primary {
+        margin-top: 10px;
+        background-color: #d97c13;
+        border-color: #d97c13;
+      }
+
+      .btn-primary:hover {
+        background-color: #8d5501;
+        border-color: #8d5501;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="MainForm">
+      <h2><img src="iconElips.png" alt="Login Icon" /> Login</h2>
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="usernameInp" placeholder="username" />
+        <label for="floatingInput">Username</label>
+      </div>
+      <div class="form-floating">
+        <input type="password" class="form-control" id="passwordInp" placeholder="Password" />
+        <label for="floatingPassword">Password</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Login</button>
+      <button type="button" class="btn btn-primary" onclick="window.location.href='register.html'">Register</button>
+    </form>
+    <div class="bubble"></div>
+    <h1></h1>
+    <p></p>
+    <canvas></canvas>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"></script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+      import { getDatabase, get, ref } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+      import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-auth.js";
+      const firebaseConfig = {
+        apiKey: "AIzaSyAA_1_WqqRj465WwlNz0Nykn2vv7JgQE60",
+        authDomain: "garudas-bd0bf.firebaseapp.com",
+        databaseURL: "https://garudas-bd0bf-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "garudas-bd0bf",
+        storageBucket: "garudas-bd0bf.appspot.com",
+        messagingSenderId: "573493107934",
+        appId: "1:573493107934:web:4a275167309de12a87f64f",
+      };
+
+      const app = initializeApp(firebaseConfig);
+
+      const db = getDatabase();
+      const auth = getAuth(app);
+      const dbref = ref(db);
+
+      let UsernameInp = document.getElementById("usernameInp");
+      let PassInp = document.getElementById("passwordInp");
+      let MainForm = document.getElementById("MainForm");
+
+      let SignInUser = (evt) => {
+        evt.preventDefault();
+
+        const username = UsernameInp.value;
+        const password = PassInp.value;
+        signInWithEmailAndPassword(auth, `${username}@example.com`, password)
+          .then((credentials) => {
+            console.log(credentials);
+            localStorage.setItem("loggedInUsername", username);
+            localStorage.setItem("searchedusername", "-");
+            window.location.href = "index.html";
+          })
+          .catch((error) => {
+            alert(error.message);
+            console.log(error.code);
+            console.log(error.message);
+          });
+      };
+      MainForm.addEventListener("submit", SignInUser);
+    </script>
+    <script>
+      // setup canvas
+
+      const canvas = document.querySelector("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const width = (canvas.width = window.innerWidth);
+      const height = (canvas.height = window.innerHeight);
+
+      // function to generate random number
+
+      function random(min, max) {
+        const num = Math.floor(Math.random() * (max - min)) + min;
+        return num;
+      }
+
+      // Define Generic Shape Constructor =========
+
+      function Shape(x, y, velX, velY, exists) {
+        this.x = x;
+        this.y = y;
+        this.velX = velX;
+        this.velY = velY;
+        this.exists = exists;
+      }
+
+      // Define Ball Constructor =========
+
+      function Ball(x, y, velX, velY, exists, color, size) {
+        Shape.call(this, x, y, velX, velY, exists);
+        this.color = color;
+        this.size = size;
+      }
+      Ball.prototype = Object.create(Shape.prototype);
+      // Ball.prototype.constructor = Ball;
+      Object.defineProperty(Ball.prototype, "constructor", {
+        value: Ball,
+        enumerable: false,
+        writable: true,
+      });
+
+      // define ball draw method
+
+      Ball.prototype.draw = function () {
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+        ctx.fill();
+      };
+
+      // define ball update method
+
+      Ball.prototype.update = function () {
+        if (this.x + this.size >= width) {
+          this.velX = -this.velX;
+        }
+
+        if (this.x - this.size <= 0) {
+          this.velX = -this.velX;
+        }
+
+        if (this.y + this.size >= height) {
+          this.velY = -this.velY;
+        }
+
+        if (this.y - this.size <= 0) {
+          this.velY = -this.velY;
+        }
+
+        this.x += this.velX;
+        this.y += this.velY;
+      };
+
+      // define ball collision detection
+
+      Ball.prototype.collisionDetect = function () {
+        for (let j = 0; j < balls.length; j++) {
+          if (!(this === balls[j])) {
+            const dx = this.x - balls[j].x;
+            const dy = this.y - balls[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < this.size + balls[j].size) {
+              balls[j].color = this.color = "rgb(" + random(0, 255) + "," + random(0, 255) + "," + random(0, 255) + ")";
+            }
+          }
+        }
+      };
+
+      // Define EvilCircle Constructor =========
+
+      function EvilCircle(x, y, exists) {
+        //Shape.call(this, x, y, 20, 20, exists);
+        this.color = "white";
+        this.size = 10;
+      }
+      EvilCircle.prototype = Object.create(Shape.prototype);
+      // Ball.prototype.constructor = Ball;
+      Object.defineProperty(EvilCircle.prototype, "constructor", {
+        value: EvilCircle,
+        enumerable: false,
+        writable: true,
+      });
+
+      // define EvilCircle draw method
+
+      EvilCircle.prototype.draw = function () {
+        ctx.beginPath();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = this.color;
+        ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+        ctx.stroke();
+      };
+
+      // define evilcircle update method
+
+      EvilCircle.prototype.update = function () {
+        if (this.x + this.size >= width) {
+          this.x = this.x - this.size;
+          console.log(this.x + " right ");
+        }
+
+        if (this.x - this.size <= 0) {
+          this.x = this.x + this.size;
+          console.log(this.x + " left ");
+        }
+
+        if (this.y + this.size >= height) {
+          this.y = this.y - this.size;
+          console.log(this.y + " bottom ");
+        }
+
+        if (this.y - this.size <= 0) {
+          this.y = this.y + this.size;
+          console.log(this.y + " top ");
+        }
+      };
+
+      // define evilcircle controls method
+
+      EvilCircle.prototype.setControls = function () {
+        let _this = this;
+
+        window.onkeydown = function (e) {
+          if (e.key === "a") {
+            _this.x -= _this.velX;
+          } else if (e.key === "d") {
+            _this.x += _this.velX;
+          } else if (e.key === "w") {
+            _this.y -= _this.velY;
+          } else if (e.key === "s") {
+            _this.y += _this.velY;
+          }
+          // console.log(e.key);
+        };
+      };
+
+      // define evilcircle collision detection
+
+      EvilCircle.prototype.collisionDetect = function () {
+        for (let j = 0; j < balls.length; j++) {
+          if (balls[j].exists) {
+            const dx = this.x - balls[j].x;
+            const dy = this.y - balls[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < this.size + balls[j].size) {
+              balls[j].exists = false;
+              score--; // Dicrement the score
+            }
+          }
+        }
+      };
+
+      // define array to store balls and populate it
+
+      let balls = [];
+
+      while (balls.length < 25) {
+        const size = random(10, 20);
+        let ball = new Ball(
+          // ball position always drawn at least one ball width
+          // away from the adge of the canvas, to avoid drawing errors
+          random(0 + size, width - size),
+          random(0 + size, height - size),
+          random(-7, 7),
+          random(-7, 7),
+          true,
+          "rgb(" + random(0, 255) + "," + random(0, 255) + "," + random(0, 255) + ")",
+          size
+        );
+        balls.push(ball);
+      }
+
+      // define variable to count and display the score
+
+      const para = document.querySelector("p");
+      let pText = para.textContent;
+      let score = balls.length;
+
+      // define loop that keeps drawing the scene constantly
+
+      function loop() {
+        ctx.fillStyle = "rgba(0,0,0,0.25)";
+        ctx.fillRect(0, 0, width, height);
+
+        for (let i = 0; i < balls.length; i++) {
+          if (balls[i].exists) {
+            balls[i].draw();
+            balls[i].update();
+            balls[i].collisionDetect();
+          }
+        }
+        circle.draw();
+        circle.update();
+        circle.collisionDetect();
+
+        // para.textContent = pText + " " + score; // Display updated score
+
+        requestAnimationFrame(loop);
+      }
+      let circle = new EvilCircle(30, 50, true);
+      circle.setControls();
+
+      loop();
+    </script>
+  </body>
+</html>
