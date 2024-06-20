@@ -1,6 +1,8 @@
 # Garudas: Upaya Meningkatkan Kualitas Literasi Digital Masyarakat menggunakan Pendekatan Gamifikasi
 > HTML, CSS, javascript
 
+
+-- TEAM : (Abdullah Farhan)[https://github.com/Farhanabd05] (William Anthony)[https://github.com/wlmoi] (Dave Daniell Yanni)[https://github.com/d2v6]
 ## Latar Belakang Ide Perangkat Lunak
 Literasi digital adalah kemampuan untuk menggunakan teknologi informasi dan komunikasi (TIK) untuk menemukan, mengevaluasi, memanfaatkan, membuat, dan mengkomunikasikan konten atau informasi dengan kecakapan kognitif maupun teknikal (Mulachela, 2022).
 
