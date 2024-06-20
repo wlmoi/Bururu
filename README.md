@@ -1,5 +1,5 @@
 # Garudas: Upaya Meningkatkan Kualitas Literasi Digital Masyarakat menggunakan Pendekatan Gamifikasi
-> HTML, CSS, javascript
+> HTML, CSS, Javascript
 
 
 -- TEAM : [Abdullah Farhan](https://github.com/Farhanabd05), [William Anthony](https://github.com/wlmoi), and [Dave Daniell Yanni](https://github.com/d2v6)
